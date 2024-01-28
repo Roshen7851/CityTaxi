@@ -33,3 +33,9 @@ Route::middleware([
         return Inertia::render('Dashboard');
     })->name('dashboard');
 });
+
+
+
+Route::get('/register-driver', function () {
+    return Inertia::render('Auth/RegisterDriver');
+});

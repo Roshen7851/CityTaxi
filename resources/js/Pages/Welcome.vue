@@ -96,6 +96,8 @@ const toggleMobileMenu = () => {
                     <button class="bg-black dark:bg-yellow-500 hover:bg-yellow-500 mt-3 text-white text-sm font-bold py-2 px-4 rounded">
                         Request a ride
                     </button>
+
+                    <p class="dark:text-white mt-4 text-base font-bold ">Or call <a class="text-blue-500 font-extrabold" href="tel:0111234568"> 011-1234-568 </a> anytime, 24/7, to book a ride with our friendly call center</p>
                 </div>
             </div>
             <div class="hidden sm:block sm:w-1/2 px-3 lg:bg-blueGray-10 mb-12 lg:mb-0 pb-10">
