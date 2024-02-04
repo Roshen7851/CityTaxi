@@ -1,31 +1,50 @@
 <script setup>
-import {Head, Link, useForm} from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import {Head, Link, useForm, usePage} from '@inertiajs/vue3';
 import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import {ref} from "vue";
+import {computed, ref} from "vue";
+const { $inertia } = usePage();
 
 const form = useForm({
     name: '',
     email: '',
-    contact: '',
+    phone: '',
     address: '',
     password: '',
     password_confirmation: '',
     terms: false,
+    brand: '',
+    model: '',
+    manufactured_year: '',
+    registered_year: '',
+    registration_number: '',
+    color: '',
+    vehicle_license: '',
+    vehicle_insurance: '',
 });
 
 const submit = () => {
-    form.post(route('register'), {
+    form.post(route('register-driver'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
 
 const step = ref(1);
+
+const { brands, models } = defineProps(['brands', 'models']);
+
+
+// compute models based on brand
+const modelList = computed(() => {
+    return form.brand ? models.filter(model => model.make_id === form.brand) : [];
+});
+
+
+
+
 </script>
 
 <template>
@@ -90,14 +109,14 @@ const step = ref(1);
                             <InputLabel for="contact" value="Contact Number"/>
                             <TextInput
                                 id="contact"
-                                v-model="form.contact"
+                                v-model="form.phone"
                                 type="text"
                                 class="mt-1 block w-full"
                                 required
                                 autofocus
                                 autocomplete="name"
                             />
-                            <InputError class="mt-2" :message="form.errors.contact"/>
+                            <InputError class="mt-2" :message="form.errors.phone"/>
                         </div>
                         <div class="mt-4">
                             <InputLabel for="address" value="Address"/>
@@ -156,11 +175,14 @@ const step = ref(1);
                         <div class="mt-4 grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Upload Driver License Front</label>
-                                <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file_input" type="file">
+                                <input name="driving_license_front" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file_input" type="file">
+
+                                <InputError class="mt-2" :message="form.errors.driving_license_front"/>
                             </div>
                             <div>
                                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">Upload Driver License Back</label>
-                                <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file_input" type="file">
+                                <input name="driving_license_back" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file_input" type="file">
+                                <InputError class="mt-2" :message="form.errors.driving_license_back"/>
                             </div>
                         </div>
 
@@ -193,30 +215,31 @@ const step = ref(1);
 
                     <div v-else-if="step === 2">
                         <div class="mt-4">
-                            <InputLabel for="model" value="Brand"/>
-                            <TextInput
-                                id="model"
-                                v-model="form.model"
-                                type="text"
+                            <InputLabel for="brand" value="Brand"/>
+                            <select
+                                id="brand"
+                                v-model="form.brand"
                                 class="mt-1 block w-full"
                                 required
                                 autofocus
-                                placeholder="ex Suzuki"
-                            />
-                            <InputError class="mt-2" :message="form.errors.model"/>
+                            >
+                                <option value="" disabled>Select a brand</option>
+                                <option v-for="brand in brands" :key="brand.id" :value="brand.id">{{ brand.title }}</option>
+                            </select>
+                            <InputError class="mt-2" :message="form.errors.brand"/>
                         </div>
 
-                        <div class="mt-4">
+                        <div class="mt-4" v-if="models.length > 0">
                             <InputLabel for="model" value="Model"/>
-                            <TextInput
+                            <select
                                 id="model"
                                 v-model="form.model"
-                                type="text"
                                 class="mt-1 block w-full"
                                 required
-                                autofocus
-                                placeholder="ex Alto"
-                            />
+                            >
+                                <option value="" disabled>Select a model</option>
+                                <option v-for="model in modelList" :key="model.id" :value="model.id">{{ model.title }}</option>
+                            </select>
                             <InputError class="mt-2" :message="form.errors.model"/>
                         </div>
 
@@ -225,27 +248,29 @@ const step = ref(1);
                                 <InputLabel for="model" value="Manufactured Year"/>
                                 <TextInput
                                     id="model"
-                                    v-model="form.model"
+                                    v-model="form.manufactured_year"
                                     type="text"
                                     class="mt-1 block w-full"
                                     required
                                     autofocus
+                                    maxlength="4"
                                     placeholder="ex 2015"
                                 />
-                                <InputError class="mt-2" :message="form.errors.model"/>
+                                <InputError class="mt-2" :message="form.errors.manufactured_year"/>
                             </div>
                             <div>
                                 <InputLabel for="model" value="Registered Year"/>
                                 <TextInput
                                     id="model"
-                                    v-model="form.model"
+                                    v-model="form.registered_year"
                                     type="text"
                                     class="mt-1 block w-full"
                                     required
                                     autofocus
+                                    maxlength="4"
                                     placeholder="ex 2017"
                                 />
-                                <InputError class="mt-2" :message="form.errors.model"/>
+                                <InputError class="mt-2" :message="form.errors.registered_year"/>
                             </div>
                         </div>
 
@@ -253,43 +278,48 @@ const step = ref(1);
                             <InputLabel for="model" value="Registration Number"/>
                             <TextInput
                                 id="model"
-                                v-model="form.model"
+                                v-model="form.registration_number"
                                 type="text"
                                 class="mt-1 block w-full"
                                 required
                                 autofocus
                                 placeholder="ex ABC-1234"
+                                maxlength="8"
+                                pattern="[A-Z]{2,3}-\d{4}"
                             />
-                            <InputError class="mt-2" :message="form.errors.model"/>
+                            <InputError class="mt-2" :message="form.errors.registration_number"/>
                         </div>
                         <div class="mt-4">
                             <InputLabel for="model" value="Color"/>
                             <TextInput
                                 id="model"
-                                v-model="form.model"
+                                v-model="form.color"
                                 type="text"
                                 class="mt-1 block w-full"
                                 required
                                 autofocus
                                 placeholder="ex Red"
                             />
-                            <InputError class="mt-2" :message="form.errors.model"/>
+                            <InputError class="mt-2" :message="form.errors.color"/>
                         </div>
 
                         <div class="mt-4">
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                                    for="file_input">Upload Vehicle License</label>
-                            <input
+                            <input name="vehicle_license"
                                 class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                                 id="file_input" type="file">
+
+                            <InputError class="mt-2" :message="form.errors.vehicle_license"/>
                         </div>
 
                         <div class="mt-4">
                             <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                                    for="file_input">Upload Vehicle Insurance</label>
-                            <input
+                            <input name="vehicle_insurance"
                                 class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                                 id="file_input" type="file">
+                            <InputError class="mt-2" :message="form.errors.vehicle_insurance"/>
                         </div>
 
                         <div class="grid grid-cols-4  mt-4">

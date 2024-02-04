@@ -11,7 +11,7 @@ import TextInput from '@/Components/TextInput.vue';
 const form = useForm({
     name: '',
     email: '',
-    contact: '',
+    phone: '',
     address: '',
     password: '',
     password_confirmation: '',
@@ -19,7 +19,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('register'), {
+    form.post(route('register-passenger'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
@@ -57,28 +57,28 @@ const submit = () => {
                         <InputLabel for="contact" value="Contact Number" />
                         <TextInput
                             id="contact"
-                            v-model="form.contact"
+                            v-model="form.phone"
                             type="text"
                             class="mt-1 block w-full"
                             required
                             autofocus
                             autocomplete="name"
                         />
-                        <InputError class="mt-2" :message="form.errors.contact" />
+                        <InputError class="mt-2" :message="form.errors.phone" />
                     </div>
-                    <div class="mt-4">
-                        <InputLabel for="address" value="Address" />
-                        <TextInput
-                            id="address"
-                            v-model="form.address"
-                            type="text"
-                            class="mt-1 block w-full"
-                            required
-                            autofocus
-                            autocomplete="name"
-                        />
-                        <InputError class="mt-2" :message="form.errors.address" />
-                    </div>
+<!--                    <div class="mt-4">-->
+<!--                        <InputLabel for="address" value="Address" />-->
+<!--                        <TextInput-->
+<!--                            id="address"-->
+<!--                            v-model="form.address"-->
+<!--                            type="text"-->
+<!--                            class="mt-1 block w-full"-->
+<!--                            required-->
+<!--                            autofocus-->
+<!--                            autocomplete="name"-->
+<!--                        />-->
+<!--                        <InputError class="mt-2" :message="form.errors.address" />-->
+<!--                    </div>-->
 
 
                     <div class="mt-4">

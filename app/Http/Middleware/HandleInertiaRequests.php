@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -36,8 +37,17 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = Auth::user();
+        $userRoles = $user ? $user->roles : null;
+        $userRole = $userRoles ? $userRoles->pluck('name') : null;
+        $userDetails = $user ? $user->only('id','name','email','profile_photo_path') : null;
+
+
         return array_merge(parent::share($request), [
-            //
+            'auth' => [
+                'user' => $userDetails,
+                'role' => $userRole,
+            ],
         ]);
     }
 }
