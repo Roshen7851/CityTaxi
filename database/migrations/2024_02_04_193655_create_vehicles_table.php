@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->string('brand');
-            $table->string('model');
-            $table->string('manufactured_year');
-            $table->string('registered_year');
+            $table->integer('brand_id');
+            $table->integer('model_id');
+            $table->integer('manufactured_year');
+            $table->integer('registered_year');
             $table->string('registration_number');
             $table->string('color');
             $table->text('vehicle_license')->nullable();

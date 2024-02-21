@@ -11,7 +11,7 @@
                 <div class="card grid grid-cols-4 space-x-4 p-3 bg-white col-span-4 shadow-lg rounded-lg">
                     <div class="col-span-3">
                         <p class="font-bold text-lg tracking-wide text-slate-700 dark:text-navy-100">
-                            Good Morning !
+                            {{greeting}}
                         </p>
                         <p class="mt-2 text-xs+">
                             Welcome back {{ user.name }}, Lets ride with City Taxi
@@ -62,323 +62,90 @@
                         <div class="bg-amber-400" id="map" ref="map" style="height: 300px"></div>
                     </div>
 
-                                        <div class="mt-4">
-                                            <button @click="getDirections" class="bg-black w-full dark:bg-yellow-500 hover:bg-yellow-500 mt-3 text-white text-sm font-bold py-2 px-4 rounded">
-                                                Request a ride
-                                            </button>
-                                        </div>
+                    <div class="mt-4">
+                        <button @click="getDirections"
+                                class="bg-black w-full dark:bg-yellow-500 hover:bg-yellow-500 mt-3 text-white text-sm font-bold py-2 px-4 rounded">
+                            Request a ride
+                        </button>
+                    </div>
                 </div>
 
 
-                <div class="col-span-4 bg-white p-6 rounded-lg shadow-lg">
+                <div v-if="ride.locationRequested" class="col-span-4 bg-white p-6 rounded-lg shadow-lg">
                     <div class="grid grid-cols-4 gap-4">
-                        <div
-                            class="py-2 px-2  hover:bg-amber-400 hover:shadow-2xl border-black rounded-lg shadow-lg bg-amber-100"
-                            style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div @click="selectType(1)"
+                             :class="[ride.typeSelected==1?'bg-amber-400':'bg-amber-100']"
+                             class="py-2 px-2  hover:bg-amber-400 hover:shadow-2xl border-black rounded-lg shadow-lg"
+                             style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
                             <img class="w-16" src="../../assets/images/icons/moto.png">
                             <p class="text-xs">City Taxi Moto</p>
                             <p class="text-xs"><i class="fa-solid fa-user"></i> 1</p>
                         </div>
 
-                        <div
-                            class="py-2 px-2  hover:bg-amber-400 hover:shadow-2xl border-black rounded-lg shadow-lg bg-amber-100"
-                            style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div @click="selectType(2)" :class="[ride.typeSelected==2?'bg-amber-400':'bg-amber-100']"
+                             class="py-2 px-2  hover:bg-amber-400 hover:shadow-2xl border-black rounded-lg shadow-lg "
+                             style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
                             <img class="w-16" src="../../assets/images/icons/rickshaw-svgrepo-com.svg">
                             <p class="text-xs"> Tuk</p>
                             <p class="text-xs"><i class="fa-solid fa-user"></i> 3</p>
                         </div>
 
-                        <div class="py-2 px-2  bg-amber-400 hover:shadow-2xl border-black rounded-lg shadow-lg "
+                        <div @click="selectType(3)" :class="[ride.typeSelected==3?'bg-amber-400':'bg-amber-100']"
+                             class="py-2 px-2  hover:shadow-2xl border-black rounded-lg shadow-lg "
                              style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
                             <img class="w-16" src="../../assets/images/icons/car.png">
                             <p class="text-xs"> Zip</p>
                             <p class="text-xs"><i class="fa-solid fa-user"></i>4</p>
                         </div>
 
-                        <div
-                            class="py-2 px-2  hover:bg-amber-400 hover:shadow-2xl border-black rounded-lg shadow-lg bg-amber-100"
-                            style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div @click="selectType(4)" :class="[ride.typeSelected==4?'bg-amber-400':'bg-amber-100']"
+                             class="py-2 px-2  hover:bg-amber-400 hover:shadow-2xl border-black rounded-lg shadow-lg "
+                             style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
                             <img class="w-16" src="../../assets/images/icons/wagon.png">
                             <p class="text-xs">City Taxi XL</p>
                             <p class="text-xs"><i class="fa-solid fa-user"></i>6</p>
                         </div>
                     </div>
 
-                    <div class="mt-6 h-[400px] overflow-y-auto">
-                        <div class="grid mb-3 shadow-lg grid-cols-12 px-2 py-2 border-yellow-500 border-2 rounded-lg">
-                            <img src="https://i.pravatar.cc/150?img=1" class="w-12 col-span-2 rounded-full">
+                    <div v-if="filteredDriverList" class="mt-6 h-[400px] overflow-y-auto">
+
+                        <div :class="[ride.driverSelected==driver?'bg-amber-400 font-bold':'']"
+                             @click="selectDriver(driver)" v-for="driver in filteredDriverList" :key="driver.id"
+                             class="grid mb-3 shadow-lg grid-cols-12 px-2 py-2 border-yellow-500 border-2 rounded-lg">
+                            <img :src="driver.profile_photo_url" class="w-12 col-span-2 rounded-full">
                             <div class="ml-2 mt-2 col-span-4">
-                                <p class=" text-xs">Nishan Lanka</p>
-                                <div class="flex">
-                                    <svg class="w-4 h-4 text-yellow-300" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 ms-1 text-gray-300 dark:text-gray-500" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                </div>
+                                <p class=" text-xs">{{ driver.name }}</p>
+                                <rating-component :selected="ride.driverSelected==driver"
+                                                  :rate="driver.rating"></rating-component>
 
                             </div>
                             <div class="text-right mt-2 col-span-6">
                                 <p class="text-xs">Affordable compact ride</p>
-                                <p class="text-xs">6min away</p>
-                            </div>
-                        </div>
-                        <div
-                            class="grid mb-3 bg-amber-400 shadow-lg grid-cols-12 px-2 py-2 border-yellow-500 border-2 rounded-lg">
-                            <img src="https://i.pravatar.cc/150?img=8" class="w-12 col-span-2 rounded-full">
-                            <div class="ml-2 mt-2 col-span-4">
-                                <p class=" text-xs">CK Pawan</p>
-                                <div class="flex">
-                                    <svg class="w-4 h-4 text-yellow-300" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 ms-1 text-gray-300 dark:text-gray-500" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                </div>
-
-                            </div>
-                            <div class="text-right mt-2 col-span-6">
-                                <p class="text-xs">Affordable compact ride</p>
-                                <p class="text-xs">6min away</p>
-                            </div>
-                        </div>
-                        <div class="grid mb-3 shadow-lg grid-cols-12 px-2 py-2 border-yellow-500 border-2 rounded-lg">
-                            <img src="https://i.pravatar.cc/150?img=3" class="w-12 col-span-2 rounded-full">
-                            <div class="ml-2 mt-2 col-span-4">
-                                <p class=" text-xs">Ushan K</p>
-                                <div class="flex">
-                                    <svg class="w-4 h-4 text-yellow-300" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 ms-1 text-gray-300 dark:text-gray-500" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                </div>
-
-                            </div>
-                            <div class="text-right mt-2 col-span-6">
-                                <p class="text-xs">Affordable compact ride</p>
-                                <p class="text-xs">6min away</p>
-                            </div>
-                        </div>
-                        <div class="grid mb-3 shadow-lg grid-cols-12 px-2 py-2 border-yellow-500 border-2 rounded-lg">
-                            <img src="https://i.pravatar.cc/150?img=9" class="w-12 col-span-2 rounded-full">
-                            <div class="ml-2 mt-2 col-span-4">
-                                <p class=" text-xs">Kumara manel</p>
-                                <div class="flex">
-                                    <svg class="w-4 h-4 text-yellow-300" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 ms-1 text-gray-300 dark:text-gray-500" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                </div>
-
-                            </div>
-                            <div class="text-right mt-2 col-span-6">
-                                <p class="text-xs">Affordable compact ride</p>
-                                <p class="text-xs">6min away</p>
-                            </div>
-                        </div>
-                        <div class="grid mb-3 shadow-lg grid-cols-12 px-2 py-2 border-yellow-500 border-2 rounded-lg">
-                            <img src="https://i.pravatar.cc/150?img=10" class="w-12 col-span-2 rounded-full">
-                            <div class="ml-2 mt-2 col-span-4">
-                                <p class=" text-xs">Vishak Balasooriya</p>
-                                <div class="flex">
-                                    <svg class="w-4 h-4 text-yellow-300" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 ms-1 text-gray-300 dark:text-gray-500" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                </div>
-
-                            </div>
-                            <div class="text-right mt-2 col-span-6">
-                                <p class="text-xs">Affordable compact ride</p>
-                                <p class="text-xs">6min away</p>
-                            </div>
-                        </div>
-                        <div class="grid mb-3 shadow-lg grid-cols-12 px-2 py-2 border-yellow-500 border-2 rounded-lg">
-                            <img src="https://i.pravatar.cc/150?img=8" class="w-12 col-span-2 rounded-full">
-                            <div class="ml-2 mt-2 col-span-4">
-                                <p class=" text-xs">CK Pawan</p>
-                                <div class="flex">
-                                    <svg class="w-4 h-4 text-yellow-300" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                    <svg class="w-4 h-4 ms-1 text-gray-300 dark:text-gray-500" aria-hidden="true"
-                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                        <path
-                                            d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                    </svg>
-                                </div>
-
-                            </div>
-                            <div class="text-right mt-2 col-span-6">
-                                <p class="text-xs">Affordable compact ride</p>
-                                <p class="text-xs">6min away</p>
+                                <p class="text-xs">{{ driver.duration }} min away ({{ driver.distanceInKmText }})</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-span-4 bg-white p-6 rounded-lg shadow-lg"
+                <div v-if="ride.driverSelected" class="col-span-4 bg-white p-6 rounded-lg shadow-lg"
                      style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
                     <h3 class="text-lg font-medium"> Ride Details </h3>
 
                     <div class="mt-4 grid grid-cols-6 justify-between">
                         <div class="col-span-1">
-                            <img src="https://i.pravatar.cc/150?img=8" class="w-16 rounded-full">
+                            <img :src="ride.driverSelected.profile_photo_url" class="w-16 rounded-full">
                         </div>
                         <div class="col-span-2">
-                            <p class="mt-2">CK Pawan</p>
-                            <div class="flex">
-                                <svg class="w-4 h-4 text-yellow-300" aria-hidden="true"
-                                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                    <path
-                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                </svg>
-                                <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                    <path
-                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                </svg>
-                                <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                    <path
-                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                </svg>
-                                <svg class="w-4 h-4 text-yellow-300 ms-1" aria-hidden="true"
-                                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                    <path
-                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                </svg>
-                                <svg class="w-4 h-4 ms-1 text-gray-300 dark:text-gray-500" aria-hidden="true"
-                                     xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 20">
-                                    <path
-                                        d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z"/>
-                                </svg>
-                            </div>
+                            <p class="mt-2">{{ ride.driverSelected.name }}</p>
+                            <rating-component :rate="ride.driverSelected.rating"></rating-component>
                         </div>
                         <div class="text-right col-span-3">
-                            <p>Wagon R - Red </p>
-                            <p>ABC-2929</p>
-                            <p>4 Passengers</p>
+                            <p> {{ ride.driverSelected.vehicles[0].brand.title }} -
+                                {{ ride.driverSelected.vehicles[0].model.title }}
+                                ({{ ride.driverSelected.vehicles[0].manufactured_year }}) |
+                                {{ ride.driverSelected.vehicles[0].color }}</p>
+                            <p> {{ ride.driverSelected.vehicles[0].registration_number }} </p>
+                            <p>{{ ride.driverSelected.vehicles[0].model.vehicle_type.passenger_count }} Passengers</p>
                         </div>
                     </div>
 
@@ -387,15 +154,15 @@
                     <div class="grid grid-cols-3">
                         <div class="px-2 py-2 text-center">
                             <p>Distance</p>
-                            <p class="font-bold">{{distance}}</p>
+                            <p class="font-bold">{{ distance }}</p>
                         </div>
                         <div class="px-2 py-2 text-center">
                             <p>Estimated Duration</p>
-                            <p class="font-bold">{{estimatedDuration}}</p>
+                            <p class="font-bold">{{ estimatedDuration }}</p>
                         </div>
                         <div class="px-2 py-2 text-center">
                             <p>Arrived At</p>
-                            <p class="font-bold">{{estimatedArrival}}</p>
+                            <p class="font-bold">{{ estimatedArrival }}</p>
                         </div>
                     </div>
                     <hr class="mt-2 border border-gray-200">
@@ -403,16 +170,16 @@
                     <div>
                         <div class="flex justify-between mt-2">
                             <p>Base Fare</p>
-                            <p>Rs. 100.00</p>
+                            <p>Rs. {{ parseFloat(basePrice).toFixed(2) }}</p>
                         </div>
                         <div class="flex justify-between mt-2">
                             <p>Distance Fare</p>
-                            <p>Rs. 100.00</p>
+                            <p>Rs. {{ parseFloat(distancePrice).toFixed(2) }} </p>
                         </div>
 
                         <div class="flex justify-between mt-2 font-bold">
                             <p>Total</p>
-                            <p>Rs. 100.00</p>
+                            <p>Rs. {{ parseFloat(totalPrice).toFixed(2) }}</p>
                         </div>
                     </div>
 
@@ -421,7 +188,7 @@
                             class="border border-black w-full dark:bg-yellow-500 hover:bg-yellow-500 mt-3 text-black text-sm font-bold py-2 px-4 rounded">
                             Cancel Ride
                         </button>
-                        <button
+                        <button @click="startRide"
                             class="bg-black w-full dark:bg-yellow-500 hover:bg-yellow-500 mt-3 text-white text-sm font-bold py-2 px-4 rounded">
                             Start Ride
                         </button>
@@ -435,20 +202,51 @@
 
 <script>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import {computed, onMounted, ref} from "vue";
-import {usePage} from "@inertiajs/vue3";
+import {computed, onMounted, reactive, ref} from "vue";
+import {router, usePage} from "@inertiajs/vue3";
+import RatingComponent from "@/Components/RatingComponent.vue";
 
 const page = usePage()
 
 export default {
     components: {
+        RatingComponent,
         AppLayout
     },
-    setup() {
+    props: {
+        drivers: [],
+        greeting:"Hello !",
+    },
+    setup(props) {
         const value = ref()
         const user = computed(() => page.props.auth.user)
         const distance = ref('');
         const duration = ref('');
+
+        const ride = reactive({
+            locationRequested: false,
+            typeSelected: false,
+            driverSelected: false,
+        })
+
+        const basePrice = computed(() => {
+            const price = ride.driverSelected.vehicles[0].model.vehicle_type.base_price
+            ride.basePrice = price;
+            return price;
+        });
+
+        const distancePrice = computed(() => {
+            const price = (distanceValue.value - 1) * ride.driverSelected.vehicles[0].model.vehicle_type.price_per_km
+            ride.distancePrice = price;
+            return price;
+        });
+
+        const totalPrice = computed(() => {
+            const price = (distanceValue.value - 1) * ride.driverSelected.vehicles[0].model.vehicle_type.price_per_km + ride.driverSelected.vehicles[0].model.vehicle_type.base_price
+            ride.totalPrice = price;
+            return price;
+        });
+
 
         const getCurrentTime = () => {
             const now = new Date();
@@ -478,7 +276,6 @@ export default {
         const map = ref(null);
 
 
-
         const updateStartLocation = () => {
             console.log('Updated startLocation:', startLocation.value);
         };
@@ -492,12 +289,13 @@ export default {
 
         const getDirections = () => {
             map.value = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 7.8731, lng: 80.7718 }, // Coordinates for Colombo, Sri Lanka
+                center: {lat: 7.8731, lng: 80.7718}, // Coordinates for Colombo, Sri Lanka
                 zoom: 6,
             });
 
             directionsRenderer.setMap(map.value);
             calculateAndDisplayRoute(directionsService, directionsRenderer);
+            ride.locationRequested = true;
         };
 
 
@@ -505,17 +303,19 @@ export default {
 
             // Initialize the map
             map.value = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 7.8731, lng: 80.7718 }, // Coordinates for Colombo, Sri Lanka
+                center: {lat: 7.8731, lng: 80.7718}, // Coordinates for Colombo, Sri Lanka
                 zoom: 6,
             });
 
             directionsRenderer.setMap(map.value);
         };
 
+        const distanceValue = ref(0);
+
         const calculateAndDisplayRoute = (directionsService, directionsRenderer) => {
             directionsService.route(
                 {
-                    origin:  startLocation.value, // Point A
+                    origin: startLocation.value, // Point A
                     destination: endLocation.value, // Point B
                     travelMode: 'DRIVING',
                 },
@@ -533,6 +333,7 @@ export default {
                         // Convert duration from seconds to a more human-readable format
                         const durationInMinutes = Math.floor(durationInSeconds / 60);
                         distance.value = distanceInKm;
+                        distanceValue.value = leg.distance.value / 1000;
                         duration.value = durationInMinutes;
 
                     } else {
@@ -543,7 +344,7 @@ export default {
         }
 
         const autoComplete = ref(null);
-        const autoComplete1= ref(null);
+        const autoComplete1 = ref(null);
         const initLocation = async () => {
             const pacInput = document.getElementById('pac-input');
             if (pacInput) {
@@ -611,7 +412,6 @@ export default {
         });
 
         const estimatedDuration = computed(() => {
-            // Assuming you have a duration value
             const durationInMinutes = parseInt(duration.value);
 
             if (!isNaN(durationInMinutes)) {
@@ -627,6 +427,95 @@ export default {
             }
         });
 
+        const selectType = (type) => {
+            ride.typeSelected = type;
+            ride.driverSelected = false;
+            driverList();
+        }
+
+        const filteredDriverList = ref([]);
+
+
+        const getDistanceAndDuration = (startLocation, driverLocation) => {
+            return new Promise((resolve, reject) => {
+                directionsService.route(
+                    {
+                        origin: driverLocation,
+                        destination: startLocation,
+                        travelMode: 'DRIVING',
+                    },
+                    (response, status) => {
+                        if (status === 'OK') {
+                            const route = response.routes[0];
+                            const leg = route.legs[0];
+
+                            const distanceInKm = leg.distance.value / 1000;
+                            const distanceInKmText = leg.distance.text;
+                            const durationInSeconds = leg.duration.text;
+
+                            resolve({distanceInKm, durationInSeconds, distanceInKmText});
+                        } else {
+                            reject(new Error('Directions request failed due to ' + status));
+                        }
+                    }
+                );
+            });
+        }
+
+
+        const driverList = async () => {
+            // empty the driver list
+            filteredDriverList.value = [];
+
+            const filteredDrivers = props.drivers.filter(function (driver) {
+                const driverType = driver.vehicles[0].model.vehicle_type_id;
+                return driverType === ride.typeSelected;
+            });
+
+
+            for (let i = 0; i < filteredDrivers.length; i++) {
+                const driver = filteredDrivers[i];
+                const driverLocation = driver.address;
+
+                try {
+                    const result = await getDistanceAndDuration(driverLocation, startLocation.value);
+
+                    if (result.distanceInKm < 10) {
+                        driver.distance = result.distanceInKm;
+                        driver.distanceInKmText = result.distanceInKmText;
+                        driver.duration = result.durationInSeconds;
+                        filteredDriverList.value.push(driver);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+
+            console.log('Filtered Drivers:', filteredDriverList.value);
+        };
+
+        const selectDriver = (driver) => {
+            ride.driverSelected = driver;
+        }
+
+        const startRide = () => {
+            console.log('Ride started');
+        //     post ride data and redirect to ride page
+            router.post('/ride', {
+                start_location: startLocation.value,
+                end_location: endLocation.value,
+                driver: ride.driverSelected,
+                distance: distance.value,
+                duration: estimatedDuration.value,
+                price: totalPrice.value,
+                vehicle_id: ride.driverSelected.vehicles[0].id,
+                passenger_id: user.value.id,
+                arrived_at:estimatedArrival.value,
+                base_fare:parseFloat(basePrice.value).toFixed(2),
+                distance_fare:parseFloat(distancePrice.value).toFixed(2),
+                total:parseFloat(totalPrice.value).toFixed(2),
+            });
+        }
 
         return {
             value,
@@ -640,6 +529,15 @@ export default {
             estimatedArrival,
             distance,
             estimatedDuration,
+            ride,
+            selectType,
+            filteredDriverList,
+            selectDriver,
+            distanceValue,
+            basePrice,
+            distancePrice,
+            totalPrice,
+            startRide
         }
     }
 }

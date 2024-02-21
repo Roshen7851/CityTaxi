@@ -52,8 +52,8 @@ class CreateNewDriver implements CreatesNewUsers
 
         Vehicle::create([
             'user_id' => $user->id,
-            'brand' => $input['brand'],
-            'model' => $input['model'],
+            'brand_id' => $input['brand'],
+            'model_id' => $input['model'],
             'manufactured_year' => $input['manufactured_year'],
             'registered_year' => $input['registered_year'],
             'registration_number' => $input['registration_number'],

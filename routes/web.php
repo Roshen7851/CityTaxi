@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\DebugController;
+use App\Http\Controllers\PassengerDashboardController;
+use App\Http\Controllers\RideController;
 use App\Http\Controllers\UserRegisterController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -30,9 +33,19 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/user-dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('user.dashboard');
+    Route::get('/user-dashboard',[PassengerDashboardController::class,'index'])->name('user.dashboard');
+    Route::get('/call-center-dashboard',[PassengerDashboardController::class,'CallCenterDashboard'])->name('call_center.dashboard');
+    Route::post('/ride',[RideController::class,'store'])->name('ride.start');
+    Route::get('/ongoing-ride/{ride}',[RideController::class,'ongoing'])->name('ride.ongoing');
+    Route::post('/cancel-ride',[RideController::class,'cancelRide'])->name('ride.cancel');
+    Route::get('/ride-list',[RideController::class,'index'])->name('ride.list');
+    Route::post('/ride-payment',[RideController::class,'payment'])->name('ride.payment');
+    Route::get('/ride-review/{ride}',[RideController::class,'review'])->name('ride.review');
+    Route::post('/rate-now',[RideController::class,'rateNow'])->name('ride.rate');
+
+    Route::post('/ride-reject',[RideController::class,'rideReject'])->name('ride.reject');
+    Route::post('/ride-accept',[RideController::class,'rideAccept'])->name('ride.accept');
+    Route::post('/ride-request-payment',[RideController::class,'requestPayment'])->name('ride.request.payment');
 
     Route::get('/driver-dashboard', function () {
         return Inertia::render('DriverDashboard');
@@ -42,12 +55,17 @@ Route::middleware([
         return Inertia::render('AdminDashboard');
     })->name('admin.dashboard');
 
-    Route::get('/call-center-dashboard', function () {
-        return Inertia::render('CallCenterDashboard');
-    })->name('call_center.dashboard');
 });
 
 
+
+//Route::get('/payment', function () {
+//    return Inertia::render('RidePayment');
+//})->name('call_center.dashboard');
+//
+//Route::get('/rating', function () {
+//    return Inertia::render('RideRating');
+//})->name('call_center.dashboard');
 
 
 Route::get('/register-driver', [UserRegisterController::class, 'registerDriverView']);
@@ -55,7 +73,4 @@ Route::post('/register-driver', [UserRegisterController::class, 'registerDriver'
 Route::post('/register-passenger', [UserRegisterController::class, 'registerPassenger'])->name('register-passenger');
 
 
-
-Route::get('/passenger/trips', function () {
-    return Inertia::render('PassengerTrips');
-});
+Route::get('debug',[DebugController::class,'index']);

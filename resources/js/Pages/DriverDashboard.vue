@@ -2,7 +2,7 @@
     <AppLayout title="Dashboard">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-               Driver Dashboard
+                Driver Dashboard
             </h2>
         </template>
 
@@ -34,216 +34,92 @@
 
             </div>
         </div>
+
+
+        <div id="popup-modal" tabindex="-1" v-if="modalState"
+             class="bg-black bg-opacity-50 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative p-4 w-full max-w-md max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <button type="button" @click="modalState = false"
+                            class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                            data-modal-hide="popup-modal">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                             viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                    <div class="p-4 md:p-5 text-center">
+                        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true"
+                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                        </svg>
+                        <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">You Have New Hire !</h3>
+
+                        <button @click="rejectHire" data-modal-hide="popup-modal" type="button"
+                                class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+                            No, Reject Hire
+                        </button>
+
+                        <button @click="acceptHire" data-modal-hide="popup-modal" type="button"
+                                class="text-white bg-red-600 hover:bg-red-800 ml-2 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2">
+                            Yes, Accept Hire
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </AppLayout>
 </template>
 
 <script>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import {computed, onMounted, ref} from "vue";
-import {usePage} from "@inertiajs/vue3";
+import {router, usePage} from "@inertiajs/vue3";
 
 const page = usePage()
+
+const modalState = ref(false)
+
+const pusher = new Pusher('33bd000ba183c7a15acd', {
+    cluster: 'ap2'
+});
+
+const channel = pusher.subscribe('my-channel');
+const ride = ref({});
+
+channel.bind('my-event', function (data) {
+    ride.value = data.message;
+    modalState.value = true
+});
 
 export default {
     components: {
         AppLayout
     },
     setup() {
-        const value = ref()
         const user = computed(() => page.props.auth.user)
-        const distance = ref('');
-        const duration = ref('');
 
-        const getCurrentTime = () => {
-            const now = new Date();
-            return now;
-        };
-
-        const estimatedArrival = computed(() => {
-            // Assuming you have a duration value
-            const durationInMinutes = parseInt(duration.value);
-
-            if (!isNaN(durationInMinutes)) {
-                const currentTime = getCurrentTime();
-                const estimatedArrivalTime = new Date(currentTime.getTime() + durationInMinutes * 60 * 1000);
-
-                // Format the estimated arrival time
-                const hours = estimatedArrivalTime.getHours();
-                const minutes = estimatedArrivalTime.getMinutes();
-                return `${hours}:${minutes}`;
-            } else {
-                return '';
-            }
-        });
-
-
-        const startLocation = ref('');
-        const endLocation = ref('');
-        const map = ref(null);
-
-
-
-        const updateStartLocation = () => {
-            console.log('Updated startLocation:', startLocation.value);
-        };
-
-        const updateEndLocation = () => {
-            console.log('Updated endLocation:', endLocation.value);
-        };
-
-        const directionsService = new google.maps.DirectionsService();
-        const directionsRenderer = new google.maps.DirectionsRenderer();
-
-        const getDirections = () => {
-            map.value = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 7.8731, lng: 80.7718 }, // Coordinates for Colombo, Sri Lanka
-                zoom: 6,
+        const acceptHire = () =>{
+            router.post('/ride-accept', {
+                ride_id :ride.value.id
             });
-
-            directionsRenderer.setMap(map.value);
-            calculateAndDisplayRoute(directionsService, directionsRenderer);
-        };
-
-
-        const initMap = async () => {
-
-            // Initialize the map
-            map.value = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 7.8731, lng: 80.7718 }, // Coordinates for Colombo, Sri Lanka
-                zoom: 6,
-            });
-
-            directionsRenderer.setMap(map.value);
-        };
-
-        const calculateAndDisplayRoute = (directionsService, directionsRenderer) => {
-            directionsService.route(
-                {
-                    origin:  startLocation.value, // Point A
-                    destination: endLocation.value, // Point B
-                    travelMode: 'DRIVING',
-                },
-                (response, status) => {
-                    if (status === 'OK') {
-                        directionsRenderer.setDirections(response);
-
-                        // Get distance and duration
-                        const route = response.routes[0];
-                        const leg = route.legs[0];
-
-                        const distanceInKm = leg.distance.text;
-                        const durationInSeconds = leg.duration.value;
-
-                        // Convert duration from seconds to a more human-readable format
-                        const durationInMinutes = Math.floor(durationInSeconds / 60);
-                        distance.value = distanceInKm;
-                        duration.value = durationInMinutes;
-
-                    } else {
-                        window.alert('Directions request failed due to ' + status);
-                    }
-                }
-            );
         }
 
-        const autoComplete = ref(null);
-        const autoComplete1= ref(null);
-        const initLocation = async () => {
-            const pacInput = document.getElementById('pac-input');
-            if (pacInput) {
-                const options = {
-                    componentRestrictions: {country: "LK"},
-                    fields: ["address_components", "geometry", "icon", "name"],
-                    strictBounds: false,
-                };
-                autoComplete.value = new google.maps.places.Autocomplete(pacInput, options);
-                // Listen for the place_changed event
-                autoComplete.value.addListener('place_changed', onPlaceChanged);
-            } else {
-                console.log('pacInput not found');
-            }
-
-        };
-
-        const onPlaceChanged = () => {
-            console.log('Place changed');
-            const selectedPlace = autoComplete.value.getPlace();
-            startLocation.value = selectedPlace.name || '';
-
-            // You can do additional processing or emit events if needed
-            console.log('Selected Place:', selectedPlace);
-            console.log('Selected Place:', startLocation.value);
-
-        };
-
-
-        const initDestination = async () => {
-            const pacInput = document.getElementById('pac-input1');
-            if (pacInput) {
-
-                const options = {
-                    componentRestrictions: {country: "LK"},
-                    fields: ["address_components", "geometry", "icon", "name"],
-                    strictBounds: false,
-                };
-                autoComplete1.value = new google.maps.places.Autocomplete(pacInput, options);
-                // Listen for the place_changed event
-                autoComplete1.value.addListener('place_changed', onDestinationChanged);
-            } else {
-                console.log('pacInput not found');
-            }
-        };
-
-        const onDestinationChanged = () => {
-            console.log('Destination changed');
-            const selectedPlace = autoComplete1.value.getPlace();
-            endLocation.value = selectedPlace.name || '';
-
-            // You can do additional processing or emit events if needed
-            console.log('Selected Place:', selectedPlace);
-            console.log('Selected Place:', endLocation.value);
-
-        };
-
-        onMounted(() => {
-            // Initialize the map when the component is mounted
-            initMap();
-            initLocation();
-            initDestination();
-
-
-        });
-
-        const estimatedDuration = computed(() => {
-            // Assuming you have a duration value
-            const durationInMinutes = parseInt(duration.value);
-
-            if (!isNaN(durationInMinutes)) {
-                if (durationInMinutes < 60) {
-                    return `${durationInMinutes} minutes`;
-                } else {
-                    const hours = Math.floor(durationInMinutes / 60);
-                    const remainingMinutes = durationInMinutes % 60;
-                    return `${hours} hours ${remainingMinutes} minutes`;
-                }
-            } else {
-                return '';
-            }
-        });
-
+        const rejectHire = () =>{
+            router.post('/ride-reject', {
+                ride_id :ride.value.id
+            });
+        }
 
         return {
-            value,
             user,
-            startLocation,
-            endLocation,
-            map,
-            updateStartLocation,
-            updateEndLocation,
-            getDirections,
-            estimatedArrival,
-            distance,
-            estimatedDuration,
+            modalState,
+            rejectHire,
+            acceptHire
         }
     }
 }

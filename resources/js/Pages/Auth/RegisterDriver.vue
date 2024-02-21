@@ -5,7 +5,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import {computed, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 const { $inertia } = usePage();
 
 const form = useForm({
@@ -24,6 +24,7 @@ const form = useForm({
     color: '',
     vehicle_license: '',
     vehicle_insurance: '',
+    vehicle_type: '',
 });
 
 const submit = () => {
@@ -34,16 +35,29 @@ const submit = () => {
 
 const step = ref(1);
 
-const { brands, models } = defineProps(['brands', 'models']);
+const { brands, models ,types } = defineProps(['brands', 'models','types']);
 
 
 // compute models based on brand
 const modelList = computed(() => {
-    return form.brand ? models.filter(model => model.make_id === form.brand) : [];
+    // apply types filter as well
+    return form.brand ? models.filter(model => model.brand_id === form.brand && model.vehicle_type_id === form.vehicle_type ) : [];
 });
 
+const autoComplete = ref(null);
 
 
+onMounted(() => {
+    autoComplete.value = new google.maps.places.Autocomplete(document.getElementById('address'), {
+        types: ['geocode'],
+        componentRestrictions: {country: 'LK'}
+    });
+    autoComplete.value.addListener('place_changed', updateAddress);
+});
+
+const updateAddress = () => {
+    form.address = autoComplete.value.getPlace().name;
+};
 
 </script>
 
@@ -100,7 +114,6 @@ const modelList = computed(() => {
                                 class="mt-1 block w-full"
                                 required
                                 autofocus
-                                autocomplete="name"
                             />
                             <InputError class="mt-2" :message="form.errors.name"/>
                         </div>
@@ -113,21 +126,20 @@ const modelList = computed(() => {
                                 type="text"
                                 class="mt-1 block w-full"
                                 required
-                                autofocus
-                                autocomplete="name"
                             />
                             <InputError class="mt-2" :message="form.errors.phone"/>
                         </div>
+
+
                         <div class="mt-4">
                             <InputLabel for="address" value="Address"/>
                             <TextInput
                                 id="address"
+                                @input="updateAddress"
                                 v-model="form.address"
                                 type="text"
                                 class="mt-1 block w-full"
                                 required
-                                autofocus
-                                autocomplete="name"
                             />
                             <InputError class="mt-2" :message="form.errors.address"/>
                         </div>
@@ -141,7 +153,6 @@ const modelList = computed(() => {
                                 type="email"
                                 class="mt-1 block w-full"
                                 required
-                                autocomplete="username"
                             />
                             <InputError class="mt-2" :message="form.errors.email"/>
                         </div>
@@ -154,7 +165,6 @@ const modelList = computed(() => {
                                 type="password"
                                 class="mt-1 block w-full"
                                 required
-                                autocomplete="new-password"
                             />
                             <InputError class="mt-2" :message="form.errors.password"/>
                         </div>
@@ -167,7 +177,6 @@ const modelList = computed(() => {
                                 type="password"
                                 class="mt-1 block w-full"
                                 required
-                                autocomplete="new-password"
                             />
                             <InputError class="mt-2" :message="form.errors.password_confirmation"/>
                         </div>
@@ -215,13 +224,28 @@ const modelList = computed(() => {
 
                     <div v-else-if="step === 2">
                         <div class="mt-4">
+                            <InputLabel for="type" value="Vehicle Type"/>
+                            <select
+                                id="brand"
+                                v-model="form.vehicle_type"
+                                class="mt-1 block w-full"
+                                required
+                                autofocus
+                            >
+                                <option value="" disabled>Select Vehicle Type</option>
+                                <option v-for="brand in types" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
+                            </select>
+                            <InputError class="mt-2" :message="form.errors.brand"/>
+                        </div>
+
+
+                        <div class="mt-4">
                             <InputLabel for="brand" value="Brand"/>
                             <select
                                 id="brand"
                                 v-model="form.brand"
                                 class="mt-1 block w-full"
                                 required
-                                autofocus
                             >
                                 <option value="" disabled>Select a brand</option>
                                 <option v-for="brand in brands" :key="brand.id" :value="brand.id">{{ brand.title }}</option>
@@ -252,7 +276,6 @@ const modelList = computed(() => {
                                     type="text"
                                     class="mt-1 block w-full"
                                     required
-                                    autofocus
                                     maxlength="4"
                                     placeholder="ex 2015"
                                 />
@@ -266,7 +289,6 @@ const modelList = computed(() => {
                                     type="text"
                                     class="mt-1 block w-full"
                                     required
-                                    autofocus
                                     maxlength="4"
                                     placeholder="ex 2017"
                                 />
@@ -282,7 +304,6 @@ const modelList = computed(() => {
                                 type="text"
                                 class="mt-1 block w-full"
                                 required
-                                autofocus
                                 placeholder="ex ABC-1234"
                                 maxlength="8"
                                 pattern="[A-Z]{2,3}-\d{4}"
@@ -297,7 +318,6 @@ const modelList = computed(() => {
                                 type="text"
                                 class="mt-1 block w-full"
                                 required
-                                autofocus
                                 placeholder="ex Red"
                             />
                             <InputError class="mt-2" :message="form.errors.color"/>

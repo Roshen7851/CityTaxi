@@ -6,6 +6,7 @@ use App\Actions\Fortify\CreateNewDriver;
 use App\Actions\Fortify\CreateNewPassenger;
 use App\Models\Brand;
 use App\Models\VehicleModel;
+use App\Models\VehicleType;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -52,9 +53,11 @@ class UserRegisterController extends RegisteredUserController
     public function registerDriverView(){
         $brands = Brand::get();
         $models = VehicleModel::get();
+        $types = VehicleType::get();
         return Inertia::render('Auth/RegisterDriver',[
             'brands' => $brands,
-            'models' => $models
+            'models' => $models,
+            'types' => $types
         ]);
     }
 

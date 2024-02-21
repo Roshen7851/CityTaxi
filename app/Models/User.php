@@ -29,6 +29,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'address',
     ];
 
     /**
@@ -60,4 +62,18 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    public function vehicles(){
+        return $this->hasMany(Vehicle::class);
+    }
+
+
+    public function getProfilePhotoUrlAttribute($value)
+    {
+        if ($this->profile_photo_path) {
+            return asset('storage/' . $this->profile_photo_path);
+        }
+        return 'https://ui-avatars.com/api/?background=random&color-fff&name='.$this->name;
+
+    }
 }

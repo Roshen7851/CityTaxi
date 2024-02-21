@@ -1,13 +1,15 @@
 <script setup>
-import {ref} from 'vue';
-import {Head, Link, router} from '@inertiajs/vue3';
+import {computed, ref} from 'vue';
+import {Head, Link, router, usePage} from '@inertiajs/vue3';
 import ApplicationMark from '@/Components/ApplicationMark.vue';
 import Banner from '@/Components/Banner.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-
+const page = usePage()
+const role = computed(() => page.props.auth.role)
+const userRole = role.value[0];
 defineProps({
     title: String,
 });
@@ -62,19 +64,51 @@ const logout = () => {
                             <ul class="mb-8 text-sm font-medium">
 
 
-                                <li>
-                                    <a class="flex items-center pl-3 py-3 pr-2 text-gray-500 hover:bg-yellow-500 rounded"
-                                       href="/dashboard">
+                                <li v-if="userRole=='user'">
+                                    <a :class="[route().current()=='user.dashboard' ?'bg-yellow-500':'']" class="flex items-center pl-3 py-3 pr-2 text-gray-500 hover:bg-yellow-500 rounded"
+                                       href="/user-dashboard">
               <span class="inline-block mr-3 text-white text-lg">
                <i class="fa-solid fa-globe"></i>
               </span>
-                                        <span class="font-bold text-white">Dashboard</span>
+                                        <span class="font-bold text-white">Dashboard </span>
                                     </a>
                                 </li>
 
+                                <li v-else-if="userRole=='driver'">
+                                    <a :class="[route().current()=='driver.dashboard' ?'bg-yellow-500':'']" class="flex items-center pl-3 py-3 pr-2 text-gray-500 hover:bg-yellow-500 rounded"
+                                       href="/driver-dashboard">
+              <span class="inline-block mr-3 text-white text-lg">
+               <i class="fa-solid fa-globe"></i>
+              </span>
+                                        <span class="font-bold text-white">Dashboard </span>
+                                    </a>
+                                </li>
+
+                                <li v-else-if="userRole=='call_center'">
+                                    <a :class="[route().current()=='call_center.dashboard' ?'bg-yellow-500':'']" class="flex items-center pl-3 py-3 pr-2 text-gray-500 hover:bg-yellow-500 rounded"
+                                       href="/call-center-dashboard">
+              <span class="inline-block mr-3 text-white text-lg">
+               <i class="fa-solid fa-globe"></i>
+              </span>
+                                        <span class="font-bold text-white">Dashboard  </span>
+                                    </a>
+                                </li>
+
+                                <li v-else-if="userRole=='admin'">
+                                    <a :class="[route().current()=='admin.dashboard' ?'bg-yellow-500':'']" class="flex items-center pl-3 py-3 pr-2 text-gray-500 hover:bg-yellow-500 rounded"
+                                       href="/admin-dashboard">
+              <span class="inline-block mr-3 text-white text-lg">
+               <i class="fa-solid fa-globe"></i>
+              </span>
+                                        <span class="font-bold text-white">Dashboard </span>
+                                    </a>
+                                </li>
+
+
+
                                 <li>
-                                    <a class="flex items-center pl-3 py-3 pr-2 text-gray-500 bg-yellow-500 rounded"
-                                       href="/passenger/trips">
+                                    <a :class="[route().current()=='ride.list' ?'bg-yellow-500':'']" class="flex items-center pl-3 py-3 pr-2 text-gray-500  rounded"
+                                       href="/ride-list">
              <span class="inline-block mr-3 text-white text-lg">
                 <i class="fa-solid fa-car-side"></i>
               </span>
@@ -83,15 +117,15 @@ const logout = () => {
                                 </li>
 
 
-                                <li>
-                                    <a class="flex items-center pl-3 py-3 pr-2 text-gray-500 hover:bg-yellow-500 rounded"
-                                       href="#">
-              <span class="inline-block mr-3 text-white text-lg">
-                <i class="fa-solid fa-comments"></i>
-              </span>
-                                        <span class="font-bold text-white">Chats</span>
-                                    </a>
-                                </li>
+<!--                                <li>-->
+<!--                                    <a class="flex items-center pl-3 py-3 pr-2 text-gray-500 hover:bg-yellow-500 rounded"-->
+<!--                                       href="#">-->
+<!--              <span class="inline-block mr-3 text-white text-lg">-->
+<!--                <i class="fa-solid fa-comments"></i>-->
+<!--              </span>-->
+<!--                                        <span class="font-bold text-white">Chats</span>-->
+<!--                                    </a>-->
+<!--                                </li>-->
 
 
                             </ul>

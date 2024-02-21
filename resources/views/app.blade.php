@@ -12,6 +12,9 @@
         <script src="https://kit.fontawesome.com/18602b848e.js" crossorigin="anonymous"></script>
 
         <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUbPrIOwCEjuGyJBucwbsl9tXiWBKNHX8&libraries=places"></script>
+        <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+
         <!-- Scripts -->
         @routes
         @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
