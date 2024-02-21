@@ -16,7 +16,7 @@ class RideController extends Controller
 
     public function index()
     {
-        $rides = Ride::with(['vehicle','driver','vehicle.brand','vehicle.model','guest'])->get();
+        $rides = Ride::with(['vehicle','driver','vehicle.brand','vehicle.model','guest'])->orderBy('created_at','desc')->get();
         return Inertia::render('PassengerTrips',[
             'rides'=>$rides
         ]);

@@ -38,6 +38,10 @@ class Ride extends Model
 
     public function guest()
     {
-        return $this->belongsTo(GuestUser::class,'passenger_id');
+        if ($this->user_type == "guest"){
+            return $this->belongsTo(GuestUser::class, 'passenger_id');
+        }else{
+            return $this->belongsTo(User::class, 'passenger_id');
+        }
     }
 }

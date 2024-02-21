@@ -76,4 +76,13 @@ class User extends Authenticatable
         return 'https://ui-avatars.com/api/?background=random&color-fff&name='.$this->name;
 
     }
+
+    public function driverRides()
+    {
+        return $this->hasMany(Ride::class,'driver_id');
+    }
+    public function passengerRides()
+    {
+        return $this->hasMany(Ride::class,'passenger_id');
+    }
 }

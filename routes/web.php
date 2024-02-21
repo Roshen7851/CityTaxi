@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DebugController;
 use App\Http\Controllers\PassengerDashboardController;
 use App\Http\Controllers\RideController;
@@ -71,6 +72,11 @@ Route::middleware([
 Route::get('/register-driver', [UserRegisterController::class, 'registerDriverView']);
 Route::post('/register-driver', [UserRegisterController::class, 'registerDriver'])->name('register-driver');
 Route::post('/register-passenger', [UserRegisterController::class, 'registerPassenger'])->name('register-passenger');
+
+Route::get('/driver-list', [AdminController::class, 'drivers'])->name('driver-list');
+Route::get('/passenger-list', [AdminController::class, 'passengers'])->name('passenger-list');
+Route::get('/guest-list', [AdminController::class, 'guests'])->name('guest-list');
+Route::get('/vehicles-list', [AdminController::class, 'vehicles'])->name('vehicle-list');
 
 
 Route::get('debug',[DebugController::class,'index']);

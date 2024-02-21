@@ -117,6 +117,50 @@ const logout = () => {
                                 </li>
 
 
+                                <li v-if="userRole=='admin'">
+                                    <a :class="[route().current()=='driver.list' ?'bg-yellow-500':'']" class="flex items-center pl-3 py-3 pr-2 text-gray-500  rounded"
+                                       href="/driver-list">
+             <span class="inline-block mr-3 text-white text-lg">
+               <i class="fa-solid fa-car-rear"></i>
+              </span>
+                                        <span class="font-bold text-white">Drivers</span>
+                                    </a>
+                                </li>
+
+
+                                <li v-if="userRole=='admin'">
+                                    <a :class="[route().current()=='passenger.list' ?'bg-yellow-500':'']" class="flex items-center pl-3 py-3 pr-2 text-gray-500  rounded"
+                                       href="/passenger-list">
+             <span class="inline-block mr-3 text-white text-lg">
+               <i class="fa-solid fa-person"></i>
+              </span>
+                                        <span class="font-bold text-white">Passengers</span>
+                                    </a>
+                                </li>
+
+
+
+                                <li v-if="userRole=='admin'">
+                                    <a :class="[route().current()=='guest.list' ?'bg-yellow-500':'']" class="flex items-center pl-3 py-3 pr-2 text-gray-500  rounded"
+                                       href="/guest-list">
+             <span class="inline-block mr-3 text-white text-lg">
+             <i class="fa-solid fa-person-circle-question"></i>
+              </span>
+                                        <span class="font-bold text-white">Guests</span>
+                                    </a>
+                                </li>
+
+                                <li v-if="userRole=='admin'">
+                                    <a :class="[route().current()=='vehicle.list' ?'bg-yellow-500':'']" class="flex items-center pl-3 py-3 pr-2 text-gray-500  rounded"
+                                       href="/vehicles-list">
+             <span class="inline-block mr-3 text-white text-lg">
+           <i class="fa-solid fa-van-shuttle"></i>
+              </span>
+                                        <span class="font-bold text-white">Vehicles</span>
+                                    </a>
+                                </li>
+
+
 <!--                                <li>-->
 <!--                                    <a class="flex items-center pl-3 py-3 pr-2 text-gray-500 hover:bg-yellow-500 rounded"-->
 <!--                                       href="#">-->
